@@ -1,7 +1,6 @@
-{-# LANGUAGE OverloadedStrings, StandaloneDeriving, GeneralisedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings, GeneralisedNewtypeDeriving #-}
 
-module CRC32 (crc32, emptyRegister, sPolinom, rbits) where
-
+module CRC32 where
 
 
 import Control.Monad.State.Lazy
@@ -11,18 +10,10 @@ import Data.Word ( Word8 )
 import qualified Numeric
 
 
-newtype Polinom = Polinom {pbits :: Int} deriving (Eq, Show)
-
-newtype Register = Register {rbits :: Int} deriving (Eq)
+newtype Polinom = Polinom {pbits :: Int} deriving (Eq, Show, Bits, FiniteBits)
+newtype Register = Register {rbits :: Int} deriving (Eq, Bits, FiniteBits)
 type Bit = Bool
 
-instance Show Register where
-    show = flip Numeric.showHex "" . rbits
-
-deriving instance Bits Polinom
-deriving instance Bits Register
-deriving instance FiniteBits Polinom
-deriving instance FiniteBits Register
 
 
 emptyRegister :: Register
@@ -36,23 +27,18 @@ pow2Polinom = Polinom . foldl setBit zeroBits
 pushBit :: Bit -> State Register Bit
 pushBit bit = do
     register <- get
-    let (shifted, exitBit) = pushBit2Register register bit
-    put shifted
-    return exitBit
+    put $ apply0Bit bit $ shiftl1 register
+    return $ testLeftBit register
 
-pushWord8 :: Word8 -> Polinom -> State Register Bit
-pushWord8 0 _ = return False
-pushWord8 word p = do
-    let (fbit, tbits) = split word
-    exitBit <- pushBit fbit
-    reg <- get
-    when exitBit (put $ merge p reg)
-    pushWord8 tbits p
+pushWord8 :: FiniteBits b => b -> Polinom -> State Register ()
+pushWord8 word p = pushWord8' word p (finiteBitSize word) where
+    pushWord8' _ _ 0 = return ()
+    pushWord8' word p n = do
+        exitBit <- pushBit (testLeftBit word)
+        reg <- get
+        when exitBit (put $ merge p reg)
+        pushWord8' (shiftl1 word) p (n - 1)
 
-pushBit2Register :: Register -> Bit -> (Register, Bit)
-pushBit2Register reg nb = (shiftedReg, exitedBit) where
-    shiftedReg = apply0Bit nb $ shiftl1 reg
-    exitedBit = testLeftBit reg
 
 testLeftBit :: FiniteBits a => a -> Bool
 testLeftBit a = testBit a (finiteBitSize a - 1)
@@ -63,21 +49,21 @@ shiftl1 = flip shift 1
 apply0Bit :: Bits b => Bool -> b -> b
 apply0Bit b = if b then flip setBit 0 else flip clearBit 0
 
-split :: Word8 -> (Bool, Word8)
-split w = (testLeftBit w, shiftl1 w)
-
 merge :: Polinom -> Register -> Register
 merge p r = Register $ xor (rbits r) (pbits p)
 
-crc32 :: Polinom -> ByteString -> Int
-crc32 polinom input = rbits $ execState (pushWords (unpack input) polinom) emptyRegister
 
+crc :: Polinom -> ByteString -> Int
+crc polinom input = rbits $ execState (pushWords (unpack input) polinom) emptyRegister
 
-pushWords :: [Word8] -> Polinom -> State Register Bit
-pushWords [] _ = return False
+crc32 :: ByteString -> Int
+crc32 = crc sPolinom
+
+pushWords :: [Word8] -> Polinom -> State Register ()
+pushWords [] _ = return ()
 pushWords (w:ws) p = pushWord8 w p >> pushWords ws p
 
-pushWords2 :: [Word8] -> Polinom -> State Register Bit
-pushWords2 ws p = foldM push False ws where
-    push _ word = pushWord8 word p
+-- pushWords2 :: [Word8] -> Polinom -> State Register Bit
+-- pushWords2 ws p = foldM push False ws where
+--     push _ word = pushWord8 word p
 

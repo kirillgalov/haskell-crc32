@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "haskell-crc32:lib"
+
+    - path: "./app/Main.hs"
+      component: "haskell-crc32:exe:haskell-crc32-exe"
+
+    - path: "./app/Paths_haskell_crc32.hs"
+      component: "haskell-crc32:exe:haskell-crc32-exe"
+
+    - path: "./test"
+      component: "haskell-crc32:test:haskell-crc32-test"

@@ -1,11 +1,20 @@
 module Main where
 
-import Data.ByteString ( getLine, ByteString )
-import CRC32 ( crc32, sPolinom )
-
+import qualified Data.ByteString  as ByteString ( getLine, getContents )
+import qualified Numeric
+import CRC32 ( crc32 )
+import qualified System.Environment as Environment
+--import Data.List
 
 main :: IO ()
-main = Data.ByteString.getLine >>= print . programm
+main = do
+    args <- Environment.getArgs
+    datas <- if "--stdin" `elem` args then ByteString.getContents else ByteString.getLine
+    print $ toHex $ crc32 datas
 
-programm :: ByteString -> Int
-programm = crc32 sPolinom
+
+
+
+
+toHex :: (Integral a, Show a) => a -> String
+toHex value = Numeric.showHex value ""

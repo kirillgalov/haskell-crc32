@@ -9,10 +9,10 @@ version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/haskell-crc32#readme>
 homepage:       https://github.com/githubuser/haskell-crc32#readme
 bug-reports:    https://github.com/githubuser/haskell-crc32/issues
-author:         Author name here
+author:         Kirill Galov
 maintainer:     example@example.com
-copyright:      2021 Author name here
-license:        BSD3
+copyright:      2021 Kirill Galov
+license:        MIT
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:

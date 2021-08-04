@@ -1,10 +1,10 @@
 name:                haskell-crc32
 version:             0.1.0.0
 github:              "githubuser/haskell-crc32"
-license:             BSD3
-author:              "Author name here"
+license:             MIT
+author:              "Kirill Galov"
 maintainer:          "example@example.com"
-copyright:           "2021 Author name here"
+copyright:           "2021 Kirill Galov"
 
 extra-source-files:
 - README.md
