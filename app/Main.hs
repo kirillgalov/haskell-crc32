@@ -13,8 +13,5 @@ main = do
     print $ toHex $ crc32 datas
 
 
-
-
-
 toHex :: (Integral a, Show a) => a -> String
 toHex value = Numeric.showHex value ""
