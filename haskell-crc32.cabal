@@ -27,7 +27,8 @@ library
   exposed-modules:
       Crc
       Crc.BitsExtenshions
-      Crc.Register32
+      Crc.CRC_32_IEEE_802_3
+      Crc.Naive
   other-modules:
       Paths_haskell_crc32
   hs-source-dirs:
