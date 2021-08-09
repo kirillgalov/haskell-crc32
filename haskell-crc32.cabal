@@ -25,7 +25,9 @@ source-repository head
 
 library
   exposed-modules:
-      CRC32
+      Crc
+      Crc.BitsExtenshions
+      Crc.Register32
   other-modules:
       Paths_haskell_crc32
   hs-source-dirs:
